@@ -1,0 +1,15 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-mixed-requires": false,
+    "no-multi-spaces": false,
+    "no-new": false,
+    "no-underscore-dangle": false,
+    "quotes": [2, "single", "avoid-escape"],
+    "strict": [2, "never"]
+  }
+}

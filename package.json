@@ -1,0 +1,27 @@
+{
+  "name": "diffsync.js",
+  "version": "0.0.1",
+  "description": "Real time collaborative editing for JSON objects",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.js"
+  },
+  "dependencies": {
+    "jsondiffpatch": "^0.1.31",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.4",
+    "sinon": "^1.14.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/janmonschke/diffsync.js.git"
+  },
+  "author": "Jan Monschke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/janmonschke/diffsync.js/issues"
+  },
+  "homepage": "https://github.com/janmonschke/diffsync.js"
+}
