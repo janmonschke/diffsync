@@ -15,9 +15,7 @@ Server = function(adapter, transport){
   this.data = {};
 
   _.bindAll(this, 'trackConnection');
-};
 
-Server.prototype.initialize = function(){
   this.transport.on('connection', this.trackConnection);
 };
 
