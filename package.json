@@ -1,5 +1,5 @@
 {
-  "name": "diffsync.js",
+  "name": "diffsync",
   "version": "0.0.1",
   "description": "Real time collaborative editing for JSON objects",
   "main": "index.js",
@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/janmonschke/diffsync.js.git"
+    "url": "https://github.com/janmonschke/diffsync.git"
   },
   "author": "Jan Monschke",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/janmonschke/diffsync.js/issues"
+    "url": "https://github.com/janmonschke/diffsync/issues"
   },
-  "homepage": "https://github.com/janmonschke/diffsync.js"
+  "homepage": "https://github.com/janmonschke/diffsync"
 }
