@@ -160,7 +160,7 @@ describe('DiffSync Client', function(){
       assert.equal(editMessage.room, client.room);
       assert.equal(editMessage.localVersion, baseVersion);
       assert.equal(editMessage.serverVersion, client.doc.serverVersion);
-      assert.equal(editMessage.edits, client.edits);
+      assert.equal(editMessage.edits, client.doc.edits);
     });
   });
 

@@ -21,7 +21,7 @@ Client = function(socket, room){
     serverVersion: 0,
     shadow: {},
     localCopy: {},
-    diffs: []
+    edits: []
   };
 
   _.bindAll(this, '_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits');
@@ -99,7 +99,7 @@ Client.prototype.syncWithServer = function(){
 
   // 2) add the difference to the local edits stack if the diff is not empty
   if(!_.isEmpty(diff)){
-    this.doc.diffs.push(this.createDiffMessage(diff, basedOnLocalVersion));
+    this.doc.edits.push(this.createDiffMessage(diff, basedOnLocalVersion));
     this.doc.localVersion++;
   }
 
