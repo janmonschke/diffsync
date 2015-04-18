@@ -148,7 +148,7 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
     // notify all sockets about the update, all but this one
     this.transport.to(editMessage.room).emit(COMMANDS.remoteUpdateIncoming);
 
-    this.sendServerChanges(doc, clientDoc, connection, sendToClient);
+    this.sendServerChanges(doc, clientDoc, sendToClient);
   }.bind(this));
 };
 
