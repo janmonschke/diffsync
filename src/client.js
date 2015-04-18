@@ -24,7 +24,7 @@ Client = function(socket, room){
     edits: []
   };
 
-  _.bindAll(this, '_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits');
+  _.bindAll(this, '_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits', 'schedule');
 };
 
 /**
