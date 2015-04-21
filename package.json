@@ -12,6 +12,8 @@
     "jsondiffpatch": "^0.1.31"
   },
   "devDependencies": {
+    "amp-is-array": "^1.0.1",
+    "amp-is-object": "^1.0.1",
     "mocha": "^2.2.4",
     "sinon": "^1.14.1"
   },

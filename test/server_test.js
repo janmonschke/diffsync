@@ -1,6 +1,7 @@
 var assert        = require('assert'),
     sinon         = require('sinon'),
-    _             = require('underscore'),
+    isArray       = require('amp-is-array'),
+    isObject      = require('amp-is-object'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),
@@ -15,9 +16,9 @@ describe('DiffSync Server', function(){
   var testTransport = function(){
     return {
       id: Math.random() + '',
-      on: _.noop,
-      emit: _.noop,
-      join: _.noop,
+      on: function(){},
+      emit: function(){},
+      join: function(){},
       to: function(){
         return new EventEmitter();
       }
@@ -64,10 +65,10 @@ describe('DiffSync Server', function(){
 
     it('should bind the callbacks properly', function(){
       var server = testServer(),
-          joinSpy = sinon.stub(server, 'joinConnection', _.noop),
-          syncSpy = sinon.stub(server, 'receiveEdit', _.noop),
+          joinSpy = sinon.stub(server, 'joinConnection', function(){}),
+          syncSpy = sinon.stub(server, 'receiveEdit', function(){}),
           testEdit = {},
-          testCb = _.noop;
+          testCb = function(){};
 
       server.trackConnection(connection);
 
@@ -129,9 +130,9 @@ describe('DiffSync Server', function(){
       server.getData(testRoom, spy);
 
       assert(spy.called, 'called the callback');
-      assert(_.isArray(server.data[testRoom].registeredSockets), 'correct data in `serverCopy`');
-      assert(_.isObject(server.data[testRoom].clientVersions), 'correct data in `clientVersions`');
-      assert(_.isObject(server.data[testRoom].serverCopy), 'correct data in `serverCopy`');
+      assert(isArray(server.data[testRoom].registeredSockets), 'correct data in `serverCopy`');
+      assert(isObject(server.data[testRoom].clientVersions), 'correct data in `clientVersions`');
+      assert(isObject(server.data[testRoom].serverCopy), 'correct data in `serverCopy`');
       assert(server.data[testRoom].serverCopy === data, 'correct value of data in `serverCopy`');
     });
   });
@@ -147,7 +148,7 @@ describe('DiffSync Server', function(){
     it('calls the internal `getData` to fetch the data for a room', function(){
       var getDataSpy = sinon.stub(server, 'getData');
 
-      server.joinConnection({}, testRoom, _.noop);
+      server.joinConnection({}, testRoom, function(){});
 
       assert(getDataSpy.called);
     });
@@ -211,13 +212,13 @@ describe('DiffSync Server', function(){
     });
 
     var join = function(){
-      server.joinConnection(connection, testRoom, _.noop);
+      server.joinConnection(connection, testRoom, function(){});
     };
 
     it('gets data from the correct coom', function(){
-      var getDataSpy = sinon.stub(server, 'getData', _.noop);
+      var getDataSpy = sinon.stub(server, 'getData', function(){});
 
-      server.receiveEdit(connection, editMessage, _.noop);
+      server.receiveEdit(connection, editMessage, function(){});
 
       assert(getDataSpy.called);
       assert(getDataSpy.calledWith(testRoom));
@@ -226,7 +227,7 @@ describe('DiffSync Server', function(){
     it('emits an error if it does not find a document for this client', function(){
       var emitSpy = sinon.spy(connection, 'emit');
 
-      server.receiveEdit(connection, editMessage, _.noop);
+      server.receiveEdit(connection, editMessage, function(){});
 
       assert(emitSpy.called);
       assert(emitSpy.calledWith(COMMANDS.error));
@@ -234,12 +235,12 @@ describe('DiffSync Server', function(){
 
     it('should perform a half server-side sync cycle', function(){
       var saveSnapshotSpy = sinon.spy(server, 'saveSnapshot'),
-          sendServerChangesSpy = sinon.stub(server, 'sendServerChanges', _.noop),
+          sendServerChangesSpy = sinon.stub(server, 'sendServerChanges', function(){}),
           initialLocalVersion = 0,
           clientDoc, serverDoc;
 
       join();
-      server.receiveEdit(connection, editMessage, _.noop);
+      server.receiveEdit(connection, editMessage, function(){});
 
       serverDoc = server.data[testRoom];
       clientDoc = serverDoc.clientVersions[connection.id];
@@ -274,7 +275,7 @@ describe('DiffSync Server', function(){
   });
 
   describe('sendServerChanges', function(){
-    var send = _.noop,
+    var send = function(){},
         clientDoc, doc, server;
 
     beforeEach(function(){

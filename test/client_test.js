@@ -1,6 +1,6 @@
 var assert        = require('assert'),
     sinon         = require('sinon'),
-    _             = require('underscore'),
+    isEmpty       = require('amp-is-empty'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),
@@ -12,8 +12,8 @@ describe('DiffSync Client', function(){
 
   var testClient = function(){
     return new Client({
-      emit: _.noop,
-      on: _.noop
+      emit: function(){},
+      on: function(){}
     }, 'testroom');
   };
 
@@ -128,7 +128,7 @@ describe('DiffSync Client', function(){
       var b = {test: true};
       var diff = testClient().createDiff(a, b);
 
-      assert(_.isEmpty(diff));
+      assert(isEmpty(diff));
     });
 
     it('should create an not empty diff for equal objects', function(){
@@ -136,7 +136,7 @@ describe('DiffSync Client', function(){
       var b = {test: true};
       var diff = testClient().createDiff(a, b);
 
-      assert(!_.isEmpty(diff));
+      assert(!isEmpty(diff));
     });
   });
 
@@ -294,7 +294,7 @@ describe('DiffSync Client', function(){
 
     it('resets the local edits list', function(){
       // too lazy to add real diffs here
-      client.applyServerEdit = _.noop;
+      client.applyServerEdit = function(){};
 
       client.doc.edits = [{}];
       client.applyServerEdits({localVersion: 0, edits: [{a: 1}, {b: 1}]});
