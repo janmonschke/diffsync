@@ -46,7 +46,7 @@ describe('DiffSync Client', function(){
       c.initialize();
 
       assert(spy.called);
-      assert(spy.calledWith('join', c.room));
+      assert(spy.calledWith(COMMANDS.join, c.room));
     });
   });
 

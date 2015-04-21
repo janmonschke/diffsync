@@ -1,6 +1,6 @@
 module.exports = {
-  join: 'join',
-  syncWithServer: 'send-edit',
-  remoteUpdateIncoming: 'updated-doc',
-  error: 'error'
+  join: 'diffsync-join',
+  syncWithServer: 'diffsync-send-edit',
+  remoteUpdateIncoming: 'diffsync-updated-doc',
+  error: 'diffsync-error'
 };
