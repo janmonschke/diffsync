@@ -91,11 +91,15 @@ describe('DiffSync Client', function(){
       assert.notStrictEqual(client.doc.localCopy, client.doc.shadow, 'they shouldnt be the same reference');
     });
 
-    it('should trigger the `onConnected` callback', function(){
-      var spy = sinon.spy(client, 'onConnected');
+    it('should emit the `connected` event', function(){
+      var emitSpy     = sinon.spy(client, 'emit'),
+          listenerSpy = sinon.spy();
 
+      client.on('connected', listenerSpy);
       client._onConnected({});
-      assert(spy.calledOnce);
+
+      assert(emitSpy.calledOnce);
+      assert(listenerSpy.calledOnce);
     });
   });
 
@@ -269,12 +273,15 @@ describe('DiffSync Client', function(){
     });
 
     it('calls error callback if `local` version numbers do not match', function(){
-      var spy = sinon.spy(client, 'onError');
+      var emitSpy     = sinon.spy(client, 'emit'),
+          listenerSpy = sinon.spy();
 
+      client.on('failure', listenerSpy);
       client.doc.localVersion = 1;
       client.applyServerEdits({localVersion: 0});
 
-      assert(spy.called);
+      assert(emitSpy.called);
+      assert(listenerSpy.called);
     });
 
     it('calls `applyServerEdit` for each edit', function(){
@@ -295,12 +302,15 @@ describe('DiffSync Client', function(){
       assert(client.doc.edits.length === 0);
     });
 
-    it('calls `onSynced` after applying all updates', function(){
-      var spy = sinon.spy(client, 'onSynced');
+    it('emits `synced` event after applying all updates', function(){
+      var emitSpy     = sinon.spy(client, 'emit'),
+          listenerSpy = sinon.spy();
 
+      client.on('synced', listenerSpy);
       client.applyServerEdits({localVersion: 0, edits: [{a: 1}, {b: 1}]});
 
-      assert(spy.called);
+      assert(emitSpy.calledWithExactly('synced'));
+      assert(listenerSpy.called);
     });
   });
 

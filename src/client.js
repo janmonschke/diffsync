@@ -1,4 +1,5 @@
 var _             = require('underscore'),
+    EventEmitter  = require('events').EventEmitter,
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),
@@ -24,8 +25,13 @@ Client = function(socket, room){
     edits: []
   };
 
+  EventEmitter.call(this);
+
   _.bindAll(this, '_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits', 'schedule');
 };
+
+// inherit from EventEmitter
+Client.prototype = new EventEmitter();
 
 /**
  * Get the data
@@ -67,7 +73,7 @@ Client.prototype._onConnected = function(initialVersion){
   this.socket.on(COMMANDS.remoteUpdateIncoming, this.schedule);
 
   // notify about established connection
-  this.onConnected();
+  this.emit('connected');
 };
 
 /**
@@ -184,14 +190,14 @@ Client.prototype.applyServerEdits = function(serverEdits){
     serverEdits.edits.forEach(this.applyServerEdit);
   }else{
     // Rejected patch because localVersions don't match
-    this.onError('REJECTED_PATCH');
+    this.emit('failure', 'REJECTED_PATCH');
   }
 
   // we are not syncing any more
   this.syncing = false;
 
   // notify about sync
-  this.onSynced();
+  this.emit('synced');
 
   // if a sync has been scheduled, sync again
   if(this.scheduled) {
@@ -227,9 +233,5 @@ Client.prototype.applyServerEdit =  function(editMessage){
     return false;
   }
 };
-
-Client.prototype.onConnected = _.noop;
-Client.prototype.onSynced = _.noop;
-Client.prototype.onError = _.noop;
 
 module.exports = Client;
