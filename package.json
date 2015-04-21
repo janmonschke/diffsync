@@ -1,6 +1,6 @@
 {
   "name": "diffsync",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Real time collaborative editing for JSON objects",
   "main": "index.js",
   "scripts": {
