@@ -1,4 +1,5 @@
-var _             = require('underscore'),
+var isEmpty       = require('amp-is-empty'),
+    bind          = require('amp-bind'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),
@@ -14,7 +15,8 @@ Server = function(adapter, transport){
   this.transport = transport;
   this.data = {};
 
-  _.bindAll(this, 'trackConnection');
+  // bind functions
+  this.trackConnection = bind(this.trackConnection, this);
 
   this.transport.on('connection', this.trackConnection);
 };
@@ -131,7 +133,7 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
         // doc.serverCopy = snapshot;
 
         // 3.a) increase the version number for the shadow if diff not empty
-        if(!_.isEmpty(edit.diff)){
+        if(!isEmpty(edit.diff)){
           clientDoc.shadow.localVersion++;
         }
       }else{
@@ -168,7 +170,7 @@ Server.prototype.sendServerChanges = function(doc, clientDoc, send){
   var basedOnServerVersion = clientDoc.shadow.serverVersion;
 
   // add the difference to the server's edit stack
-  if(!_.isEmpty(diff)){
+  if(!isEmpty(diff)){
     clientDoc.edits.push({
       serverVersion: basedOnServerVersion,
       localVersion: clientDoc.shadow.localVersion,

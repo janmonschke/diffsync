@@ -1,4 +1,5 @@
-var _             = require('underscore'),
+var isEmpty       = require('amp-is-empty'),
+    bind          = require('amp-bind'),
     EventEmitter  = require('events').EventEmitter,
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
@@ -27,7 +28,14 @@ Client = function(socket, room){
 
   EventEmitter.call(this);
 
-  _.bindAll(this, '_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits', 'schedule');
+  // bind functions
+  var methodsToBind = ['_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits', 'schedule'],
+      method;
+
+  for(var index in methodsToBind){
+    method = methodsToBind[index];
+    this[method] = bind(this[method], this);
+  }
 };
 
 // inherit from EventEmitter
@@ -104,7 +112,7 @@ Client.prototype.syncWithServer = function(){
   var basedOnLocalVersion = this.doc.localVersion;
 
   // 2) add the difference to the local edits stack if the diff is not empty
-  if(!_.isEmpty(diff)){
+  if(!isEmpty(diff)){
     this.doc.edits.push(this.createDiffMessage(diff, basedOnLocalVersion));
     this.doc.localVersion++;
   }
@@ -215,7 +223,7 @@ Client.prototype.applyServerEdit =  function(editMessage){
   if(editMessage.localVersion === this.doc.localVersion &&
     editMessage.serverVersion === this.doc.serverVersion){
 
-    if(!_.isEmpty(editMessage.diff)){
+    if(!isEmpty(editMessage.diff)){
       // versions match
       // 3) patch the shadow
       this.applyPatchTo(this.doc.shadow, editMessage.diff);
