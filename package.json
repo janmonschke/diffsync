@@ -1,6 +1,6 @@
 {
   "name": "diffsync",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Real time collaborative editing for JSON objects",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,13 @@
   "bugs": {
     "url": "https://github.com/janmonschke/diffsync/issues"
   },
-  "keywords": ["collaboration", "synchronization", "differential synchronization", "server", "client", "realtime"],
+  "keywords": [
+    "collaboration",
+    "synchronization",
+    "differential synchronization",
+    "server",
+    "client",
+    "realtime"
+  ],
   "homepage": "https://github.com/janmonschke/diffsync"
 }
