@@ -26,5 +26,6 @@
   "bugs": {
     "url": "https://github.com/janmonschke/diffsync/issues"
   },
+  "keywords": ["collaboration", "synchronization", "differential synchronization", "server", "client", "realtime"],
   "homepage": "https://github.com/janmonschke/diffsync"
 }
