@@ -51,7 +51,6 @@ Client.prototype.getData = function(){
 
 /**
  * Initializes the sync session
- * @return {[type]} [description]
  */
 Client.prototype.initialize = function(){
   // connect, join room and initialize
@@ -95,6 +94,13 @@ Client.prototype.schedule = function(){
 
   // try to sync now
   this.syncWithServer();
+};
+
+/**
+ * Alias function for `sync`
+ */
+Client.prototype.sync = function(){
+  this.schedule();
 };
 
 /**
