@@ -44,7 +44,7 @@ For specific versions of the standalone version, simply add them to the URL like
 
 ## Usage
 
-diffsync consists of a client and a server component which both implement their side of the [Differential Synchronization Algorithm](#Algorithm). These two components communicate via a custom protocol that was built on top of socket.io. However, socket.io is no hard dependency and it can be replaced by whatever communication library you wish, as long as it implements the socket.io interface.
+diffsync consists of a client and a server component which both implement their side of the [Differential Synchronization Algorithm](#algorithm). These two components communicate via a custom protocol that was built on top of socket.io. However, socket.io is no hard dependency and it can be replaced by whatever communication library you wish, as long as it implements the socket.io interface.
 
 The following paragraphs will show you how to get started. If you want to jump right into the code of a full example, head to [diffsync-todos](https://github.com/janmonschke/diffsync-todos).
 
