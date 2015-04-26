@@ -1,8 +1,21 @@
 # diffsync [![Build Status](https://travis-ci.org/janmonschke/diffsync.svg?branch=master)](https://travis-ci.org/janmonschke/diffsync)
 
-Real time collaborative editing for JSON objects
+Enables real-time collaborative editing of arbitrary JSON objects
 
-## Install
+## Table of contents
+
+- [Installation](#installation)
+- [Demo](#demo)
+- [How does it work?](#how-does-it-work)
+- [Usage](#usage)
+  - [Client](#client)
+  - [Server](#server)
+  - [DataAdapter](#dataadapter)
+- [Best Practices](#best-practices)
+- [Algorithm](#algorithm)
+- [Socket.io independence](#socket.io-independence)
+
+## Installation
 
 diffsync is available via NPM for server and client (browserify & webpack):
 
@@ -15,6 +28,10 @@ If you are neither using browserify nor webpack for your client side code, you c
 For specific versions of the standalone version, simply add them to the URL like this:
 
 <https://wzrd.in/standalone/diffsync@1.0.2>
+
+## Demo
+
+[DiffSync-Todos](diffsync-todos.herokuapp.com): An example implementation of a collaborative todo list hosted on heroku. (Source code: <https://github.com/janmonschke/diffsync-todos>) Try it out with a couple of browser windows open for the same list :)
 
 ## How does it work?
 
@@ -74,11 +91,11 @@ The client object notifies the application about the sync-state via a couple of 
 - `synced`: A new version from the server has been applied to the local data, you can update views now
 - `error`: There was an error during synchronization.
 
-The data object that is being synced, can be acessed via the clients `getData` method. It can't be accessed before the `connected` event has been fired.
+The data object that is being synced, can be accessed via the clients `getData` method. It can't be accessed before the `connected` event has been fired.
 
 It is important that your application is altering the exact same object that is returned by `getData` because the algorithm synchronizes based on changesets of this object. Every update from the server is also applied to this very object and is notified by the `synced` event.
 
-When your application has changed the state os this object, the `sync` method of the client needs to be called to trigger a sync with the server and other connected clients. Since the algorithm is based on sending diffs around, it is perfectly okay to call the `sync` method after every update on the data.
+When your application has changed the state of this object, the `sync` method of the client needs to be called to trigger a sync with the server and other connected clients. Since the algorithm is based on sending diffs around, it is perfectly okay to call the `sync` method after every update on the data.
 
 The [diffsync-todos app](https://github.com/janmonschke/diffsync-todos) provides an example client-side integration of diffsync into a todo list application. Check it out to find out how to integrate it into your existing application. In a nutshell, it makes use of `Object.observe` (and a polyfill for it) to track changes from within the app that are then synced to the server.
 
@@ -119,9 +136,22 @@ The interface consists of two methods:
   - `id (String / Number)` is the id of the data
   - `callback (Function[err, data])` the callback that should be called after fetching the data. Normal node.js style with the first parameter being the error and the second parameter being the data
 - `storeData(id, data, callback)`:
-  - is called to persist data peroidically
+  - is called to persist data periodically
   - `id (String / Number)` is the id of the data
   - `data (Object)` the new version of the data that will be saved
   - `callback (Function[err])` call back with an error if saving failed
 
 diffsync ships with a simple in-memory DataAdapter which is used in the above example. It is, however, not recommended to use it in a production app since it does not persist data.
+
+## Best Practices
+
+- If you have arrays of objects in your data structure, it is highly recommended, that these objects have either an `id` or an `_id` field which can will be used by the diff-algorithm to identify moved objects in an array
+- Error events are the result of a problem in the sync cycle and there is currently no failback procedure implemented yet (see [Algorithm](#algorithm)). The best way to restore sync is to reload the client's page. Since only very small diffs are sent around, the data loss should be minimal. This might sound pretty horrible at first, but in reality, sync problems almost never occur unless one of the sides has lost the connection for a substantial amount of time.
+
+## Algorithm
+
+The Differential Synchronization algorithm was invented by Neil Fraser in 2009. He wrote a paper about that can be found here: <https://neil.fraser.name/writing/sync/>. In addition to that, he held a Google Tech Talk about it, which is available on YouTube: <https://www.youtube.com/watch?v=S2Hp_1jqpY8>.
+
+## Socket.io independence
+
+Neither client, nor server ship with a dependency of socket.io. This allows to replace the transportation layer with a completely different library which is compatible to the socket.io interface. This implementation relies on named-events, acknowledgments, rooms and it does not make any assumption about the underlying transportation protocol.
