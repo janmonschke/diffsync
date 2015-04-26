@@ -31,7 +31,7 @@ For specific versions of the standalone version, simply add them to the URL like
 
 ## Demo
 
-[DiffSync-Todos](diffsync-todos.herokuapp.com): An example implementation of a collaborative todo list hosted on heroku. (Source code: <https://github.com/janmonschke/diffsync-todos>) Try it out with a couple of browser windows open for the same list :)
+[DiffSync-Todos](https://diffsync-todos.herokuapp.com): An example implementation of a collaborative todo list hosted on heroku. (Source code: <https://github.com/janmonschke/diffsync-todos>) Try it out with a couple of browser windows open for the same list :)
 
 ## How does it work?
 
