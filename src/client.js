@@ -204,7 +204,7 @@ Client.prototype.applyServerEdits = function(serverEdits){
     serverEdits.edits.forEach(this.applyServerEdit);
   }else{
     // Rejected patch because localVersions don't match
-    this.emit('failure', 'REJECTED_PATCH');
+    this.emit('error', 'REJECTED_PATCH');
   }
 
   // we are not syncing any more

@@ -250,6 +250,7 @@ describe('DiffSync Client', function(){
     var client;
     beforeEach(function(){
       client = testClient();
+      client.on('error', function(){});
     });
 
     it('resets the syncing flag', function(){
@@ -276,7 +277,7 @@ describe('DiffSync Client', function(){
       var emitSpy     = sinon.spy(client, 'emit'),
           listenerSpy = sinon.spy();
 
-      client.on('failure', listenerSpy);
+      client.on('error', listenerSpy);
       client.doc.localVersion = 1;
       client.applyServerEdits({localVersion: 0});
 
