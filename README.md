@@ -40,7 +40,7 @@ For specific versions of the standalone version, simply add them to the URL like
 - Clients receive events about changes from the server which are automatically applied to a shared object (in-place)
 - The server takes care of syncing the state of all connected clients
 - It uses a simple DataAdapter interface to fetch and store data with any kind of database
-- Client and Server are syncing with the [Differential Synchronization](https://neil.fraser.name/writing/sync/) algorithm
+- Client and Server are syncing with the [Differential Synchronization](#algorithm) algorithm
 
 ## Usage
 
