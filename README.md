@@ -18,10 +18,12 @@ For specific versions of the standalone version, simply add them to the URL like
 
 ## How does it work?
 
-- WebSocket rooms, requesting the data
-- custom protocol for syncing
-- Abstract DataAdapter for attaching whatever data source you want
-- changes are applied in-place
+- The client fetches the initial state of the data and enters a sync-room via WebSockets
+- Every change of this state is synced via the `sync` method
+- Clients receive events about changes from the server which are automatically applied to a shared object (in-place)
+- The server takes care of syncing the state of all connected clients
+- It uses a simple DataAdapter interface to fetch and store data with any kind of database
+- Client and Server are syncing with the [Differential Synchronization](https://neil.fraser.name/writing/sync/) algorithm
 
 ## Usage
 
@@ -29,7 +31,7 @@ diffsync consists of a client and a server component which both implement their 
 
 The following paragraphs will show you how to get started. If you want to jump right into the code of a full example, head to [diffsync-todos](https://github.com/janmonschke/diffsync-todos).
 
-### Clientx
+### Client
 
 ```javascript
   // if installed from standalone script or browserify / webpack
@@ -77,6 +79,8 @@ The data object that is being synced, can be acessed via the clients `getData` m
 It is important that your application is altering the exact same object that is returned by `getData` because the algorithm synchronizes based on changesets of this object. Every update from the server is also applied to this very object and is notified by the `synced` event.
 
 When your application has changed the state os this object, the `sync` method of the client needs to be called to trigger a sync with the server and other connected clients. Since the algorithm is based on sending diffs around, it is perfectly okay to call the `sync` method after every update on the data.
+
+The [diffsync-todos app](https://github.com/janmonschke/diffsync-todos) provides an example client-side integration of diffsync into a todo list application. Check it out to find out how to integrate it into your existing application. In a nutshell, it makes use of `Object.observe` (and a polyfill for it) to track changes from within the app that are then synced to the server.
 
 ### Server
 
