@@ -13,7 +13,7 @@ Enables real-time collaborative editing of arbitrary JSON objects
   - [DataAdapter](#dataadapter)
 - [Best Practices](#best-practices)
 - [Algorithm](#algorithm)
-- [Socket.io independence](#socket.io-independence)
+- [Socket.io independence](#socketio-independence)
 
 ## Installation
 
