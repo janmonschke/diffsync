@@ -1,4 +1,4 @@
-# diffsync [![Build Status](https://travis-ci.org/janmonschke/diffsync.svg?branch=master)](https://travis-ci.org/janmonschke/diffsync)
+# diffsync [![Build Status](https://travis-ci.org/janmonschke/diffsync.svg?branch=master)](https://travis-ci.org/janmonschke/diffsync) [![slack backdge](https://diffsync-slack.herokuapp.com/badge.svg)](https://diffsync-slack.herokuapp.com/)
 
 Enables real-time collaborative editing of arbitrary JSON objects
 
@@ -44,8 +44,6 @@ For specific versions of the standalone version, simply add them to the URL like
 - Client and Server are syncing with the [Differential Synchronization](#algorithm) algorithm
 
 ## Contact
-
-[![slack backdge](https://diffsync-slack.herokuapp.com/badge.svg)](https://diffsync-slack.herokuapp.com/)
 
 For any questions about diffsync and general chat about collaborative websites, join our [Slack channel](https://diffsync-slack.herokuapp.com/) :)
 
