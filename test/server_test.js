@@ -236,6 +236,9 @@ describe('DiffSync Server', function(){
     it('should perform a half server-side sync cycle', function(){
       var saveSnapshotSpy = sinon.spy(server, 'saveSnapshot'),
           sendServerChangesSpy = sinon.stub(server, 'sendServerChanges', function(){}),
+          emitter = new EventEmitter(),
+          emitterSpy = sinon.spy(emitter, 'emit'),
+          toRoomSpy = sinon.stub(server.transport, 'to', function(){ return emitter; }),
           initialLocalVersion = 0,
           clientDoc, serverDoc;
 
@@ -258,6 +261,11 @@ describe('DiffSync Server', function(){
 
       assert(saveSnapshotSpy.called);
       assert(sendServerChangesSpy.called);
+
+      assert(toRoomSpy.called);
+      assert(toRoomSpy.calledWithExactly(testRoom));
+      assert(emitterSpy.called);
+      assert(emitterSpy.calledWithExactly(COMMANDS.remoteUpdateIncoming, connection.id));
     });
 
   });

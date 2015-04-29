@@ -29,7 +29,7 @@ Client = function(socket, room){
   EventEmitter.call(this);
 
   // bind functions
-  var methodsToBind = ['_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits', 'schedule'],
+  var methodsToBind = ['_onConnected', 'syncWithServer', 'applyServerEdit', 'applyServerEdits', 'schedule', 'onRemoteUpdate'],
       method;
 
   for(var index in methodsToBind){
@@ -77,10 +77,21 @@ Client.prototype._onConnected = function(initialVersion){
   this.doc.serverVersion = 0;
 
   // listen to incoming updates from the server
-  this.socket.on(COMMANDS.remoteUpdateIncoming, this.schedule);
+  this.socket.on(COMMANDS.remoteUpdateIncoming, this.onRemoteUpdate);
 
   // notify about established connection
   this.emit('connected');
+};
+
+/**
+ * Handler for remote updates
+ * @param  {String} fromId id from the socket that initiated the update
+ */
+Client.prototype.onRemoteUpdate = function(fromId){
+  // only schedule if the update was not initiated by this client
+  if(this.socket.id !== fromId){
+    this.schedule();
+  }
 };
 
 /**

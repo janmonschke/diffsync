@@ -13,7 +13,8 @@ describe('DiffSync Client', function(){
   var testClient = function(){
     return new Client({
       emit: function(){},
-      on: function(){}
+      on: function(){},
+      id: '1'
     }, 'testroom');
   };
 
@@ -50,6 +51,30 @@ describe('DiffSync Client', function(){
     });
   });
 
+  describe('onRemoteUpdate', function(){
+    var client;
+    beforeEach(function(){
+      client = testClient();
+    });
+
+    it('should not schedule if update comes from the same client', function(){
+      var scheduleSpy = sinon.stub(client, 'schedule', function(){});
+
+      // 1 is the id of the local client
+      client.onRemoteUpdate('1');
+
+      assert(!scheduleSpy.called);
+    });
+
+    it('should schedule if update comes from another client', function(){
+      var scheduleSpy = sinon.stub(client, 'schedule', function(){});
+
+      client.onRemoteUpdate('2');
+
+      assert(scheduleSpy.called);
+    });
+  });
+
   describe('getData', function(){
     it('should return the correct object', function(){
       var client = testClient();
@@ -82,7 +107,7 @@ describe('DiffSync Client', function(){
       var spy = sinon.spy(client.socket, 'on');
 
       client._onConnected({});
-      assert(spy.calledWith(COMMANDS.remoteUpdateIncoming, client.schedule));
+      assert(spy.calledWith(COMMANDS.remoteUpdateIncoming, client.onRemoteUpdate));
     });
 
     it('should set the shadow and the local copy correctly', function(){
