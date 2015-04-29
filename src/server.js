@@ -147,8 +147,10 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
     // 4) save a snapshot of the document
     this.saveSnapshot(editMessage.room);
 
-    // notify all sockets about the update, all but this one
-    this.transport.to(editMessage.room).emit(COMMANDS.remoteUpdateIncoming, connection.id);
+    // notify all sockets about the update, if not empty
+    if(editMessage.edits.length > 0){
+      this.transport.to(editMessage.room).emit(COMMANDS.remoteUpdateIncoming, connection.id);
+    }
 
     this.sendServerChanges(doc, clientDoc, sendToClient);
   }.bind(this));

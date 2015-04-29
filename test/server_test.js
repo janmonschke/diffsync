@@ -268,6 +268,19 @@ describe('DiffSync Server', function(){
       assert(emitterSpy.calledWithExactly(COMMANDS.remoteUpdateIncoming, connection.id));
     });
 
+    it('should not send sync notifications if empty update', function(){
+      var emitter = new EventEmitter(),
+          emitterSpy = sinon.spy(emitter, 'emit');
+
+      // empty message
+      editMessage.edits = [];
+
+      join();
+      server.receiveEdit(connection, editMessage, function(){});
+
+      assert(!emitterSpy.called);
+    });
+
   });
 
   describe('saveSnapshot', function(){
