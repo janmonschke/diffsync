@@ -28,7 +28,7 @@ If you are neither using browserify nor webpack for your client side code, you c
 
 For specific versions of the standalone version, simply add them to the URL like this:
 
-<https://wzrd.in/standalone/diffsync@1.0.2>
+<https://wzrd.in/standalone/diffsync@2.1.0>
 
 ## Demo
 
