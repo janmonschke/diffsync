@@ -104,6 +104,8 @@ When your application has changed the state of this object, the `sync` method of
 
 The [diffsync-todos app](https://github.com/janmonschke/diffsync-todos) provides an example client-side integration of diffsync into a todo list application. Check it out to find out how to integrate it into your existing application. In a nutshell, it makes use of `Object.observe` (and a polyfill for it) to track changes from within the app that are then synced to the server.
 
+As a third optional parameter you can pass an options object to the constructor, that will then be applied to the internal diff-library. For a list of options, please check <https://github.com/benjamine/jsondiffpatch#options>.
+
 ### Server
 
 Setting up the server in a very minimal way (with express):
@@ -129,6 +131,8 @@ Setting up the server in a very minimal way (with express):
 ```
 
 This is all that is needed for running the server part. There is no further addition necessary. Most of the logic is happening in the `DataAdapter`, which is described in the next section.
+
+As a third optional parameter you can pass an options object to the constructor, that will then be applied to the internal diff-library. For a list of options, please check <https://github.com/benjamine/jsondiffpatch#options>.
 
 ### DataAdapter
 

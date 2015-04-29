@@ -54,6 +54,12 @@ describe('DiffSync Server', function(){
         new Server(testAdapter(), testTransport());
       });
     });
+
+    it('should apply the correct options to jsondiffpatch', function(){
+      var client = new Server(testAdapter(), testTransport(), { textDiff: { minLength: 2 }});
+
+      assert(client.jsondiffpatch.options().textDiff.minLength === 2);
+    });
   });
 
   describe('trackConnection', function(){

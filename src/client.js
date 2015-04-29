@@ -1,17 +1,17 @@
-var isEmpty       = require('lodash.isempty'),
+var assign        = require('lodash.assign'),
     bind          = require('lodash.bind'),
+    isEmpty       = require('lodash.isempty'),
     EventEmitter  = require('events').EventEmitter,
-    jsondiffpatch = require('jsondiffpatch').create({
-      objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
-    }),
+    jsondiffpatch = require('jsondiffpatch'),
 
     COMMANDS  = require('./commands'),
     utils     = require('./utils'),
     Client;
 
-Client = function(socket, room){
+Client = function(socket, room, diffOptions){
   if(!socket){ throw new Error('No socket specified'); }
   if(!room){ room = ''; }
+  if(!diffOptions){ diffOptions = {}; }
 
   this.socket = socket;
   this.room = room;
@@ -26,6 +26,15 @@ Client = function(socket, room){
     edits: []
   };
 
+  // set up the jsondiffpatch options
+  // see here for options: https://github.com/benjamine/jsondiffpatch#options
+  diffOptions = assign({
+    objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
+  }, diffOptions);
+
+  this.jsondiffpatch = jsondiffpatch.create(diffOptions);
+
+  // let client be an EventEmitter
   EventEmitter.call(this);
 
   // bind functions
@@ -154,7 +163,7 @@ Client.prototype.syncWithServer = function(){
  * @return {Diff}      The diff of both documents
  */
 Client.prototype.createDiff = function(docA, docB){
-  return jsondiffpatch.diff(docA, docB);
+  return this.jsondiffpatch.diff(docA, docB);
 };
 
 /**
@@ -164,7 +173,7 @@ Client.prototype.createDiff = function(docA, docB){
  * @param  {Diff} patch
  */
 Client.prototype.applyPatchTo = function(obj, patch){
-  jsondiffpatch.patch(obj, patch);
+  this.jsondiffpatch.patch(obj, patch);
 };
 
 /**

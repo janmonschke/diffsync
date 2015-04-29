@@ -37,6 +37,12 @@ describe('DiffSync Client', function(){
       assert.notStrictEqual(testClient().room, null);
       assert.notStrictEqual(testClient().room, undefined);
     });
+
+    it('should apply the correct options to jsondiffpatch', function(){
+      var client = new Client({}, 1, { textDiff: { minLength: 2 }});
+
+      assert(client.jsondiffpatch.options().textDiff.minLength === 2);
+    });
   });
 
   describe('initialize', function(){
