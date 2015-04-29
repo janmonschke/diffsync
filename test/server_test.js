@@ -1,7 +1,7 @@
 var assert        = require('assert'),
     sinon         = require('sinon'),
-    isArray       = require('amp-is-array'),
-    isObject      = require('amp-is-object'),
+    isArray       = require('lodash.isarray'),
+    isObject      = require('lodash.isobject'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),

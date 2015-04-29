@@ -1,5 +1,5 @@
-var isEmpty       = require('amp-is-empty'),
-    bind          = require('amp-bind'),
+var isEmpty       = require('lodash.isempty'),
+    bind          = require('lodash.bind'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),

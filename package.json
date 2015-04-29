@@ -7,13 +7,14 @@
     "test": "mocha test/**/*.js"
   },
   "dependencies": {
-    "amp-bind": "^1.0.1",
-    "amp-is-empty": "^1.0.2",
-    "jsondiffpatch": "^0.1.31"
+    "jsondiffpatch": "^0.1.31",
+    "lodash.assign": "^3.1.0",
+    "lodash.bind": "^3.1.0",
+    "lodash.isempty": "^3.0.2"
   },
   "devDependencies": {
-    "amp-is-array": "^1.0.1",
-    "amp-is-object": "^1.0.1",
+    "lodash.isobject": "^3.0.1",
+    "lodash.isarray": "^3.0.2",
     "mocha": "^2.2.4",
     "sinon": "^1.14.1"
   },

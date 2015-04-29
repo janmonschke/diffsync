@@ -1,6 +1,6 @@
 var assert        = require('assert'),
     sinon         = require('sinon'),
-    isEmpty       = require('amp-is-empty'),
+    isEmpty       = require('lodash.isempty'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),
