@@ -7,6 +7,7 @@ Enables real-time collaborative editing of arbitrary JSON objects
 - [Installation](#installation)
 - [Demo](#demo)
 - [How does it work?](#how-does-it-work)
+- [Contact](#contact)
 - [Usage](#usage)
   - [Client](#client)
   - [Server](#server)
@@ -41,6 +42,12 @@ For specific versions of the standalone version, simply add them to the URL like
 - The server takes care of syncing the state of all connected clients
 - It uses a simple DataAdapter interface to fetch and store data with any kind of database
 - Client and Server are syncing with the [Differential Synchronization](#algorithm) algorithm
+
+## Contact
+
+[![slack backdge](https://diffsync-slack.herokuapp.com/badge.svg)](https://diffsync-slack.herokuapp.com/)
+
+For any questions about diffsync and general chat about collaborative websites, join our [Slack channel](https://diffsync-slack.herokuapp.com/) :)
 
 ## Usage
 
