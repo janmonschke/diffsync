@@ -1,6 +1,6 @@
 var assert        = require('assert'),
     sinon         = require('sinon'),
-    isEmpty       = require('amp-is-empty'),
+    isEmpty       = require('lodash.isempty'),
     jsondiffpatch = require('jsondiffpatch').create({
       objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
     }),
@@ -36,6 +36,12 @@ describe('DiffSync Client', function(){
     it('should set a default room', function(){
       assert.notStrictEqual(testClient().room, null);
       assert.notStrictEqual(testClient().room, undefined);
+    });
+
+    it('should apply the correct options to jsondiffpatch', function(){
+      var client = new Client({}, 1, { textDiff: { minLength: 2 }});
+
+      assert(client.jsondiffpatch.options().textDiff.minLength === 2);
     });
   });
 

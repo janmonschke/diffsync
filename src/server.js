@@ -1,15 +1,15 @@
-var isEmpty       = require('amp-is-empty'),
-    bind          = require('amp-bind'),
-    jsondiffpatch = require('jsondiffpatch').create({
-      objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
-    }),
+var assign        = require('lodash.assign'),
+    bind          = require('lodash.bind'),
+    isEmpty       = require('lodash.isempty'),
+    jsondiffpatch = require('jsondiffpatch'),
 
     COMMANDS  = require('./commands'),
     utils     = require('./utils'),
     Server;
 
-Server = function(adapter, transport){
+Server = function(adapter, transport, diffOptions){
   if(!(adapter && transport)){ throw new Error('Need to specify an adapter and a transport'); }
+  if(!diffOptions){ diffOptions = {}; }
 
   this.adapter = adapter;
   this.transport = transport;
@@ -20,6 +20,14 @@ Server = function(adapter, transport){
 
   // bind functions
   this.trackConnection = bind(this.trackConnection, this);
+
+  // set up the jsondiffpatch options
+  // see here for options: https://github.com/benjamine/jsondiffpatch#options
+  diffOptions = assign({
+    objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
+  }, diffOptions);
+
+  this.jsondiffpatch = jsondiffpatch.create(diffOptions);
 
   this.transport.on('connection', this.trackConnection);
 };
@@ -135,12 +143,12 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
 
         // 3) patch the shadow
         // var snapshot = utils.deepCopy(clientDoc.shadow.doc);
-        jsondiffpatch.patch(clientDoc.shadow.doc, utils.deepCopy(edit.diff));
+        this.jsondiffpatch.patch(clientDoc.shadow.doc, utils.deepCopy(edit.diff));
         // clientDoc.shadow.doc = snapshot;
 
         // apply the patch to the server's document
         // snapshot = utils.deepCopy(doc.serverCopy);
-        jsondiffpatch.patch(doc.serverCopy, utils.deepCopy(edit.diff));
+        this.jsondiffpatch.patch(doc.serverCopy, utils.deepCopy(edit.diff));
         // doc.serverCopy = snapshot;
 
         // 3.a) increase the version number for the shadow if diff not empty
@@ -153,7 +161,7 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
         console.log('error', 'patch rejected!!', edit.serverVersion, '->', clientDoc.shadow.serverVersion, ':',
                     edit.localVersion, '->', clientDoc.shadow.localVersion);
       }
-    });
+    }.bind(this));
 
     // 4) save a snapshot of the document
     this.saveSnapshot(editMessage.room);
@@ -199,9 +207,7 @@ Server.prototype.saveSnapshot = function(room){
 
 Server.prototype.sendServerChanges = function(doc, clientDoc, send){
   // create a diff from the current server version to the client's shadow
-  // important: use deepcopied versions
-  // var diff = jsondiffpatch.diff(utils.deepCopy(clientDoc.shadow.doc), utils.deepCopy(doc.serverCopy));
-  var diff = jsondiffpatch.diff(clientDoc.shadow.doc, doc.serverCopy);
+  var diff = this.jsondiffpatch.diff(clientDoc.shadow.doc, doc.serverCopy);
   var basedOnServerVersion = clientDoc.shadow.serverVersion;
 
   // add the difference to the server's edit stack
@@ -215,7 +221,7 @@ Server.prototype.sendServerChanges = function(doc, clientDoc, send){
     clientDoc.shadow.serverVersion++;
 
     // apply the patch to the server shadow
-    jsondiffpatch.patch(clientDoc.shadow.doc, utils.deepCopy(diff));
+    this.jsondiffpatch.patch(clientDoc.shadow.doc, utils.deepCopy(diff));
   }
 
   // we explicitly want empty diffs to get sent as well
