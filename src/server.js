@@ -14,6 +14,9 @@ Server = function(adapter, transport){
   this.adapter = adapter;
   this.transport = transport;
   this.data = {};
+  this.requests = {};
+  this.saveRequests = {};
+  this.saveQueue = {};
 
   // bind functions
   this.trackConnection = bind(this.trackConnection, this);
@@ -69,23 +72,31 @@ Server.prototype.joinConnection = function(connection, room, initializeClient){
  */
 Server.prototype.getData = function(room, callback){
   var cachedVersion = this.data[room],
-      cache = this.data;
+      cache = this.data,
+      requests = this.requests;
 
   if(cachedVersion){
     callback(null, cachedVersion);
   }else{
-    this.adapter.getData(room, function(error, data){
-      // don't override if created in meantime
-      if(!cache[room]){
+    // if there is no request for this room
+    // ask the adapter for the data
+    // do nothing in the else case because this operation
+    // should only happen once
+    if(!requests[room]){
+      requests[room] = true;
+      this.adapter.getData(room, function(error, data){
         cache[room] = {
           registeredSockets: [],
           clientVersions: {},
           serverCopy: data
         };
-      }
 
-      callback(null, cache[room]);
-    });
+        requests[room] = false;
+        callback(null, cache[room]);
+      });
+    }else{
+      requests[room] = true;
+    }
   }
 };
 
@@ -157,11 +168,33 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
 };
 
 Server.prototype.saveSnapshot = function(room){
-  this.getData(room, function(err, data){
-    if(!err && data){
-      this.adapter.storeData(room, data.serverCopy);
-    }
-  }.bind(this));
+  var noRequestInProgress = !this.saveRequests[room];
+      checkQueueAndSaveAgain = function(){
+        // if another save request is in the queue, save again
+        var anotherRequestScheduled = this.saveQueue[room] === true;
+        this.saveRequests[room] = false;
+        if(anotherRequestScheduled){
+          this.saveQueue[room] = false;
+          this.saveSnapshot(room);
+        }
+      }.bind(this);
+
+  // only save if no save going on at the moment
+  if(noRequestInProgress){
+    this.saveRequests[room] = true;
+    // get data for saving
+    this.getData(room, function(err, data){
+      // store data
+      if(!err && data){
+        this.adapter.storeData(room, data.serverCopy, checkQueueAndSaveAgain);
+      }else{
+        checkQueueAndSaveAgain();
+      }
+    }.bind(this));
+  }else{
+    // schedule a new save request
+    this.saveQueue[room] = true;
+  }
 };
 
 Server.prototype.sendServerChanges = function(doc, clientDoc, send){

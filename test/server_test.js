@@ -122,6 +122,17 @@ describe('DiffSync Server', function(){
       assert(adapterSpy.calledWith(testRoom));
     });
 
+    it('should not ask the adapter for the same data twice', function(){
+      var data = {test: true},
+          spy = sinon.spy(),
+          adapterSpy = sinon.stub(server.adapter, 'getData', function(){});
+
+      server.getData(testRoom, spy);
+      server.getData(testRoom, spy);
+
+      assert(adapterSpy.calledOnce);
+    });
+
     it('should create the correct format for data internally', function(){
       var data = {test: true},
           spy = sinon.spy();
@@ -291,7 +302,19 @@ describe('DiffSync Server', function(){
       server.saveSnapshot(testRoom);
 
       assert(storeDataSpy.called);
-      assert(storeDataSpy.calledWithExactly(testRoom, server.adapter.cache[testRoom]));
+      assert(storeDataSpy.calledWith(testRoom, server.adapter.cache[testRoom]));
+    });
+
+    it('should save snaphots in correct order and wait for previous requests to finish', function(){
+      var server = testServer(),
+          storeDataSpy = sinon.stub(server.adapter, 'storeData', function(){});
+
+      server.saveSnapshot(testRoom);
+      server.saveSnapshot(testRoom);
+      server.saveSnapshot(testRoom);
+      server.saveSnapshot(testRoom);
+
+      assert(storeDataSpy.calledOnce);
     });
   });
 
