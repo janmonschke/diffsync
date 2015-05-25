@@ -176,7 +176,7 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
 };
 
 Server.prototype.saveSnapshot = function(room){
-  var noRequestInProgress = !this.saveRequests[room];
+  var noRequestInProgress = !this.saveRequests[room],
       checkQueueAndSaveAgain = function(){
         // if another save request is in the queue, save again
         var anotherRequestScheduled = this.saveQueue[room] === true;
