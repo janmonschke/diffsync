@@ -140,7 +140,7 @@ A `DataAdapter` is used by the server component internally to fetch data to init
 
 The interface consists of two methods:
 
-- `getData(id callback)`:
+- `getData(id, callback)`:
   - is called for the initialization of the algorithm
   - `id (String / Number)` is the id of the data
   - `callback (Function[err, data])` the callback that should be called after fetching the data. Normal node.js style with the first parameter being the error and the second parameter being the data
