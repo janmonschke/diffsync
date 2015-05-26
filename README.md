@@ -12,6 +12,7 @@ Enables real-time collaborative editing of arbitrary JSON objects
   - [Client](#client)
   - [Server](#server)
   - [DataAdapter](#dataadapter)
+- [List of DataAdapters](#list-of-dataadapters)
 - [Best Practices](#best-practices)
 - [Algorithm](#algorithm)
 - [Socket.io independence](#socketio-independence)
@@ -26,7 +27,7 @@ If you are neither using browserify nor webpack for your client side code, you c
 
 <https://wzrd.in/standalone/diffsync>
 
-For specific versions of the standalone version, simply add them to the URL like this:
+For specific versions of the standalone version, simply add them to the URL like this (e.g. for version 2.1.0):
 
 <https://wzrd.in/standalone/diffsync@2.1.0>
 
@@ -150,7 +151,10 @@ The interface consists of two methods:
   - `data (Object)` the new version of the data that will be saved
   - `callback (Function[err])` call back with an error if saving failed
 
-diffsync ships with a simple in-memory DataAdapter which is used in the above example. It is, however, not recommended to use it in a production app since it does not persist data.
+## List of DataAdapters
+
+- diffsync ships with a simple in-memory DataAdapter which is used in the example above. It is, however, not recommended to use it in a production app since it does not persist data.
+- [diffsyc-couchdb](https://github.com/janmonschke/diffsync-couchdb): The CouchDB data adapter that is used in the example app ([diffsync-todos](https://github.com/janmonschke/diffsync-todos))
 
 ## Best Practices
 
