@@ -7,9 +7,9 @@ var assign        = require('lodash.assign'),
     utils     = require('./utils'),
     Server;
 
-Server = function(adapter, transport, diffOptions){
+Server = function(adapter, transport, options){
   if(!(adapter && transport)){ throw new Error('Need to specify an adapter and a transport'); }
-  if(!diffOptions){ diffOptions = {}; }
+  if(!options){ options = {}; }
 
   this.adapter = adapter;
   this.transport = transport;
@@ -21,13 +21,13 @@ Server = function(adapter, transport, diffOptions){
   // bind functions
   this.trackConnection = bind(this.trackConnection, this);
 
-  // set up the jsondiffpatch options
-  // see here for options: https://github.com/benjamine/jsondiffpatch#options
-  diffOptions = assign({
+  // set up options
+  // see here for jsondiffpatch options: https://github.com/benjamine/jsondiffpatch#options
+  options = assign({
     objectHash: function(obj) { return obj.id || obj._id || JSON.stringify(obj); }
-  }, diffOptions);
+  }, options);
 
-  this.jsondiffpatch = jsondiffpatch.create(diffOptions);
+  this.jsondiffpatch = jsondiffpatch.create(options);
 
   this.transport.on('connection', this.trackConnection);
 };
