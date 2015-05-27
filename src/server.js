@@ -2,6 +2,7 @@ var assign        = require('lodash.assign'),
     bind          = require('lodash.bind'),
     isEmpty       = require('lodash.isempty'),
     jsondiffpatch = require('jsondiffpatch'),
+    without       = require('lodash.without'),
 
     COMMANDS  = require('./commands'),
     utils     = require('./utils'),
@@ -39,6 +40,15 @@ Server = function(adapter, transport, options){
 Server.prototype.trackConnection = function(connection){
   connection.on(COMMANDS.join, this.joinConnection.bind(this, connection));
   connection.on(COMMANDS.syncWithServer, this.receiveEdit.bind(this, connection));
+  connection.on(COMMANDS.disconnect, this.closeConnection.bind(this, connection));
+};
+
+Server.prototype.addRoomToConnection = function(room, connection){
+  if(!connection.rooms){
+    connection.rooms = [room];
+  }else{
+    connection.rooms.push(room);
+  }
 };
 
 /**
@@ -48,9 +58,14 @@ Server.prototype.trackConnection = function(connection){
  * @param  {Function} initializeClient Callback that is being used for initialization of the client
  */
 Server.prototype.joinConnection = function(connection, room, initializeClient){
+  this.addRoomToConnection(room, connection);
+
   this.getData(room, function(error, data){
     // connect to the room
     connection.join(room);
+
+    // register connection
+    data.registeredConnections.push(connection);
 
     // set up the client version for this socket
     // each connection has a backup and a shadow
@@ -94,7 +109,7 @@ Server.prototype.getData = function(room, callback){
       requests[room] = true;
       this.adapter.getData(room, function(error, data){
         cache[room] = {
-          registeredSockets: [],
+          registeredConnections: [],
           clientVersions: {},
           serverCopy: data
         };
@@ -230,6 +245,33 @@ Server.prototype.sendServerChanges = function(doc, clientDoc, send){
     serverVersion: basedOnServerVersion,
     edits: clientDoc.edits
   });
+};
+
+Server.prototype.closeConnection = function(connection){
+  var cache = this.data,
+    clientData, roomData;
+
+  if(connection.rooms && connection.rooms.length){
+    connection.rooms.forEach(function(room){
+      // remove client version for this connection
+      roomData = cache[room];
+      clientData = roomData && roomData.clientVersions[connection.id];
+
+      if(clientData){
+        delete roomData.clientVersions[connection.id];
+      }
+
+      // remove connection from registeredConnections
+      if(roomData){
+        roomData.registeredConnections = without(roomData.registeredConnections, connection);
+      }
+
+      // remove roomData from cache if no more registeredConnections
+      if(roomData && roomData.registeredConnections.length === 0){
+        delete cache[room];
+      }
+    });
+  }
 };
 
 module.exports = Server;

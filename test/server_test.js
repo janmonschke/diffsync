@@ -26,7 +26,7 @@ describe('DiffSync Server', function(){
   };
   var testData = function(data){
     return {
-      registeredSockets: [],
+      registeredConnections: [],
       clientVersions: {},
       serverCopy: data
     };
@@ -73,6 +73,7 @@ describe('DiffSync Server', function(){
       var server = testServer(),
           joinSpy = sinon.stub(server, 'joinConnection', function(){}),
           syncSpy = sinon.stub(server, 'receiveEdit', function(){}),
+          closeSpy = sinon.stub(server, 'closeConnection', function(){}),
           testEdit = {},
           testCb = function(){};
 
@@ -89,6 +90,12 @@ describe('DiffSync Server', function(){
       assert(syncSpy.called);
       assert(syncSpy.calledWithExactly(connection, testEdit, testCb));
       assert(syncSpy.calledOn(server));
+
+      connection.emit(COMMANDS.disconnect);
+
+      assert(closeSpy.called);
+      assert(closeSpy.calledWithExactly(connection));
+      assert(closeSpy.calledOn(server));
     });
   });
 
@@ -129,8 +136,7 @@ describe('DiffSync Server', function(){
     });
 
     it('should not ask the adapter for the same data twice', function(){
-      var data = {test: true},
-          spy = sinon.spy(),
+      var spy = sinon.spy(),
           adapterSpy = sinon.stub(server.adapter, 'getData', function(){});
 
       server.getData(testRoom, spy);
@@ -147,11 +153,16 @@ describe('DiffSync Server', function(){
       server.getData(testRoom, spy);
 
       assert(spy.called, 'called the callback');
-      assert(isArray(server.data[testRoom].registeredSockets), 'correct data in `serverCopy`');
+      assert(isArray(server.data[testRoom].registeredConnections), 'correct data in `serverCopy`');
       assert(isObject(server.data[testRoom].clientVersions), 'correct data in `clientVersions`');
       assert(isObject(server.data[testRoom].serverCopy), 'correct data in `serverCopy`');
       assert(server.data[testRoom].serverCopy === data, 'correct value of data in `serverCopy`');
     });
+  });
+
+  describe('addRoomToConnection', function(){
+    it('should correctly add a room to the list of rooms');
+    it('should append to an existing list of rooms');
   });
 
   describe('joinConnection', function(){
@@ -161,6 +172,8 @@ describe('DiffSync Server', function(){
       server = testServer();
       connection = testTransport();
     });
+
+    it('should call `addRoomToConnection` in order to track the connection\'s room');
 
     it('calls the internal `getData` to fetch the data for a room', function(){
       var getDataSpy = sinon.stub(server, 'getData');
@@ -203,6 +216,19 @@ describe('DiffSync Server', function(){
         assert.notStrictEqual(clientVersion.backup.doc, _data, 'backup doc and transferred doc are not the same reference');
         assert.notStrictEqual(clientVersion.shadow.doc, _data, 'shadow doc and transferred doc are not the same reference');
         assert.notStrictEqual(clientVersion.backup.doc, clientVersion.shadow.doc, 'backup doc and shadow doc are not the same reference');
+        done();
+      });
+    });
+
+    it('adds a new connection to the document\'s list of connections', function(done){
+      var data = testData({awesome: true});
+
+      sinon.stub(server, 'getData', function(room, cb){ cb(null, data); });
+
+      assert(data.registeredConnections.length === 0);
+
+      server.joinConnection(connection, testRoom, function(){
+        assert(data.registeredConnections.length === 1, 'registeredConnections has the correct length after joining');
         done();
       });
     });
@@ -366,5 +392,11 @@ describe('DiffSync Server', function(){
       assert.notStrictEqual(doc.serverCopy.testArray, clientDoc.shadow.doc.testArray);
       assert.notStrictEqual(doc.serverCopy.testArray[0], clientDoc.shadow.doc.testArray[0]);
     });
+  });
+
+  describe('closeConnection', function(){
+    it('should remove the client version of a room for this connection');
+    it('should remove the connection from the room\'s registeredConnections list');
+    it('should remove roomData from cache if no more registeredConnections');
   });
 });
