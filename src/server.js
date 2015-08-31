@@ -1,6 +1,7 @@
 var assign        = require('lodash.assign'),
     bind          = require('lodash.bind'),
     isEmpty       = require('lodash.isempty'),
+    EventEmitter  = require('events').EventEmitter,
     jsondiffpatch = require('jsondiffpatch'),
 
     COMMANDS  = require('./commands'),
@@ -18,6 +19,9 @@ Server = function(adapter, transport, diffOptions){
   this.saveRequests = {};
   this.saveQueue = {};
 
+  // let client be an EventEmitter
+  EventEmitter.call(this);
+
   // bind functions
   this.trackConnection = bind(this.trackConnection, this);
 
@@ -31,6 +35,9 @@ Server = function(adapter, transport, diffOptions){
 
   this.transport.on('connection', this.trackConnection);
 };
+
+// inherit from EventEmitter
+Server.prototype = new EventEmitter();
 
 /**
  * Registers the correct event listeners
@@ -52,6 +59,9 @@ Server.prototype.joinConnection = function(connection, room, initializeClient){
     // connect to the room
     connection.join(room);
 
+    // notify about connection
+    this.emit('connected', connection, data, room);
+
     // set up the client version for this socket
     // each connection has a backup and a shadow
     // and a set of edits
@@ -70,7 +80,7 @@ Server.prototype.joinConnection = function(connection, room, initializeClient){
 
     // send the current server version
     initializeClient(data.serverCopy);
-  });
+  }.bind(this));
 };
 
 /**
@@ -123,7 +133,8 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
 
     // no client doc could be found, client needs to re-auth
     if(err || !clientDoc){
-      connection.emit(COMMANDS.error, 'Need to re-connect!');
+      // notify about doc not found
+      this.emit('doc_not_found', connection, editMessage);
       return;
     }
 
@@ -137,6 +148,9 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
       // 2) check the version numbers
       if(edit.serverVersion === clientDoc.shadow.serverVersion &&
         edit.localVersion === clientDoc.shadow.localVersion){
+        // notify about patch
+        this.emit('patch', clientDoc, connection, edit, editMessage);
+
         // versions match
         // backup! TODO: is this the right place to do that?
         clientDoc.backup.doc = utils.deepCopy(clientDoc.shadow.doc);
@@ -158,8 +172,7 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
       }else{
         // TODO: implement backup workflow
         // has a low priority since `packets are not lost` - but don't quote me on that :P
-        console.log('error', 'patch rejected!!', edit.serverVersion, '->', clientDoc.shadow.serverVersion, ':',
-                    edit.localVersion, '->', clientDoc.shadow.localVersion);
+        this.emit('patch_rejected', clientDoc, connection, edit, editMessage);
       }
     }.bind(this));
 
