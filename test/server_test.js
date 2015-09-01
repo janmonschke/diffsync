@@ -232,7 +232,7 @@ describe('DiffSync Server', function(){
       server.joinConnection(connection, testRoom, function(){});
     };
 
-    it('gets data from the correct coom', function(){
+    it('gets data from the correct room', function(){
       var getDataSpy = sinon.stub(server, 'getData', function(){});
 
       server.receiveEdit(connection, editMessage, function(){});
@@ -242,12 +242,14 @@ describe('DiffSync Server', function(){
     });
 
     it('emits an error if it does not find a document for this client', function(){
-      var emitSpy = sinon.spy(connection, 'emit');
+      var emitSpy     = sinon.spy(server, 'emit'),
+          listenerSpy = sinon.spy();
 
+      server.on('doc_not_found', listenerSpy);
       server.receiveEdit(connection, editMessage, function(){});
 
-      assert(emitSpy.called);
-      assert(emitSpy.calledWith(COMMANDS.error));
+      assert(emitSpy.calledOnce);
+      assert(listenerSpy.calledOnce);
     });
 
     it('should perform a half server-side sync cycle', function(){
@@ -283,6 +285,35 @@ describe('DiffSync Server', function(){
       assert(toRoomSpy.calledWithExactly(testRoom));
       assert(emitterSpy.called);
       assert(emitterSpy.calledWithExactly(COMMANDS.remoteUpdateIncoming, connection.id));
+    });
+
+    it('emits if the patch is successful', function(){
+      var emitSpy     = sinon.spy(server, 'emit'),
+          listenerSpy = sinon.spy();
+
+      server.on('patch', listenerSpy);
+
+      join();
+      server.receiveEdit(connection, editMessage, function(){});
+
+      assert(emitSpy.called);
+      assert(emitSpy.calledWithMatch('patch'));
+      assert(listenerSpy.calledOnce);
+    });
+
+    it('emits if the patch is rejected', function(){
+      var emitSpy     = sinon.spy(server, 'emit'),
+          listenerSpy = sinon.spy();
+
+      editMessage.edits[0].serverVersion = 1
+      server.on('patch_rejected', listenerSpy);
+
+      join();
+      server.receiveEdit(connection, editMessage, function(){});
+
+      assert(emitSpy.called);
+      assert(emitSpy.calledWithMatch('patch_rejected'));
+      assert(listenerSpy.calledOnce);
     });
 
     it('should not send sync notifications if empty update', function(){

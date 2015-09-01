@@ -135,6 +135,13 @@ This is all that is needed for running the server part. There is no further addi
 
 As a third optional parameter you can pass an options object to the constructor, that will then be applied to the internal diff-library. For a list of options, please check <https://github.com/benjamine/jsondiffpatch#options>.
 
+The server object notifies the application of its actions via a few events:
+
+- `connected`: The client is connected to the server and the initial data has been sent.
+- `doc_not_found`: The in-memory client document was not found, client needs to re-auth.
+- `patch`: A patch was successfully applied.
+- `patch_rejected`: Versions did not match, patch was rejected.
+
 ### DataAdapter
 
 A `DataAdapter` is used by the server component internally to fetch data to initialize the synchronization and to save the data periodically. The simple interface allows to write a custom data provider for which ever data source you are using in your web app.
