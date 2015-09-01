@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 /**
  * A dumb in-memory data store. Do not use in production.
  * Only for demo purposes.

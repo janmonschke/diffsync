@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 var assign        = require('lodash.assign'),
     bind          = require('lodash.bind'),
     isEmpty       = require('lodash.isempty'),

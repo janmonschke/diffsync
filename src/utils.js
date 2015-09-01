@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 module.exports = {
   deepCopy: function(obj){
     if (obj === null || obj === undefined) {
