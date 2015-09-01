@@ -206,6 +206,20 @@ describe('DiffSync Server', function(){
         done();
       });
     });
+
+    it('emits a connected event', function(done){
+      var emitSpy     = sinon.spy(server, 'emit'),
+          listenerSpy = sinon.spy();
+
+      server.on('connected', listenerSpy);
+
+      server.joinConnection(connection, testRoom, function(){
+        assert(emitSpy.called);
+        assert(emitSpy.calledWith('connected'));
+        assert(listenerSpy.calledOnce);
+        done();
+      });
+    });
   });
 
   describe('receiveEdit', function(){
@@ -249,6 +263,7 @@ describe('DiffSync Server', function(){
       server.receiveEdit(connection, editMessage, function(){});
 
       assert(emitSpy.calledOnce);
+      assert(emitSpy.calledWith('doc_not_found'));
       assert(listenerSpy.calledOnce);
     });
 
