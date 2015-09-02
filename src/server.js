@@ -42,19 +42,6 @@ Server = function(adapter, transport, diffOptions){
 Server.prototype = new EventEmitter();
 
 /**
- * Emit with deep copy on event argument objects
- * @param  {String} event  The event name
- * @param  {Object} object Event argument object
- */
-Server.prototype.deepEmit = function(event, object){
-  for (var key in object)
-    if (typeof object[key] == "object" && key != "connection")
-      object[key] = utils.deepCopy(object[key]);
-  
-  this.emit(event, object);
-};
-
-/**
  * Registers the correct event listeners
  * @param  {Connection} connection The connection that should get tracked
  */
@@ -91,7 +78,7 @@ Server.prototype.joinConnection = function(connection, room, initializeClient){
     };
 
     // notify about connection
-    this.deepEmit('connected', { connection, data, room });
+    utils.deepEmit(this, 'connected', { connection, data, room });
 
     // send the current server version
     initializeClient(data.serverCopy);
@@ -149,7 +136,7 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
     // no client doc could be found, client needs to re-auth
     if(err || !clientDoc){
       // notify about doc not found
-      this.deepEmit('doc_not_found', { connection, editMessage });
+      utils.deepEmit(this, 'doc_not_found', { connection, editMessage });
       return;
     }
 
@@ -183,11 +170,11 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
         }
 
         // notify about patch
-        this.deepEmit('patch', { clientDoc, connection, edit, editMessage });
+        utils.deepEmit(this, 'patch', { clientDoc, connection, edit, editMessage });
       }else{
         // TODO: implement backup workflow
         // has a low priority since `packets are not lost` - but don't quote me on that :P
-        this.deepEmit('patch_rejected', { clientDoc, connection, edit, editMessage });
+        utils.deepEmit(this, 'patch_rejected', { clientDoc, connection, edit, editMessage });
       }
     }.bind(this));
 

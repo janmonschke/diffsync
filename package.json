@@ -6,7 +6,7 @@
   "scripts": {
     "pretest": "npm run compile",
     "prepublish": "npm run compile",
-    "compile": "babel src  --source-maps --out-dir lib",
+    "compile": "babel src   --source-maps --out-dir lib",
     "start": "babel src -w  --source-maps --out-dir lib",
     "test": "mocha --compilers js:babel/register"
   },
