@@ -4,7 +4,11 @@
   "description": "Real time collaborative editing for JSON objects",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/**/*.js"
+    "pretest": "npm run compile",
+    "prepublish": "npm run compile",
+    "compile": "babel src   --source-maps --out-dir lib",
+    "start": "babel src -w  --source-maps --out-dir lib",
+    "test": "mocha --compilers js:babel/register"
   },
   "dependencies": {
     "jsondiffpatch": "^0.1.31",
@@ -13,10 +17,12 @@
     "lodash.isempty": "^3.0.2"
   },
   "devDependencies": {
+    "babel": "^5.8.23",
     "lodash.isobject": "^3.0.1",
     "lodash.isarray": "^3.0.2",
     "mocha": "^2.2.4",
-    "sinon": "^1.14.1"
+    "sinon": "^1.14.1",
+    "source-map-support": "^0.3.2"
   },
   "repository": {
     "type": "git",

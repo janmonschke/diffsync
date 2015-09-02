@@ -1,6 +1,9 @@
+import 'source-map-support/register'
+
 var assign        = require('lodash.assign'),
     bind          = require('lodash.bind'),
     isEmpty       = require('lodash.isempty'),
+    EventEmitter  = require('events').EventEmitter,
     jsondiffpatch = require('jsondiffpatch'),
 
     COMMANDS  = require('./commands'),
@@ -18,6 +21,9 @@ Server = function(adapter, transport, diffOptions){
   this.saveRequests = {};
   this.saveQueue = {};
 
+  // let client be an EventEmitter
+  EventEmitter.call(this);
+
   // bind functions
   this.trackConnection = bind(this.trackConnection, this);
 
@@ -31,6 +37,9 @@ Server = function(adapter, transport, diffOptions){
 
   this.transport.on('connection', this.trackConnection);
 };
+
+// inherit from EventEmitter
+Server.prototype = new EventEmitter();
 
 /**
  * Registers the correct event listeners
@@ -68,9 +77,12 @@ Server.prototype.joinConnection = function(connection, room, initializeClient){
       edits: []
     };
 
+    // notify about connection
+    utils.deepEmit(this, 'connected', { connection, data, room });
+
     // send the current server version
     initializeClient(data.serverCopy);
-  });
+  }.bind(this));
 };
 
 /**
@@ -123,7 +135,8 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
 
     // no client doc could be found, client needs to re-auth
     if(err || !clientDoc){
-      connection.emit(COMMANDS.error, 'Need to re-connect!');
+      // notify about doc not found
+      utils.deepEmit(this, 'doc_not_found', { connection, editMessage });
       return;
     }
 
@@ -155,11 +168,13 @@ Server.prototype.receiveEdit = function(connection, editMessage, sendToClient){
         if(!isEmpty(edit.diff)){
           clientDoc.shadow.localVersion++;
         }
+
+        // notify about patch
+        utils.deepEmit(this, 'patch', { clientDoc, connection, edit, editMessage });
       }else{
         // TODO: implement backup workflow
         // has a low priority since `packets are not lost` - but don't quote me on that :P
-        console.log('error', 'patch rejected!!', edit.serverVersion, '->', clientDoc.shadow.serverVersion, ':',
-                    edit.localVersion, '->', clientDoc.shadow.localVersion);
+        utils.deepEmit(this, 'patch_rejected', { clientDoc, connection, edit, editMessage });
       }
     }.bind(this));
 
